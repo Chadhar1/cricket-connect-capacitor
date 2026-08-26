@@ -1,0 +1,432 @@
+/* ===========================================================================
+   CricketConnect — Capacitor native theme
+   ---------------------------------------------------------------------------
+   CAPACITOR-ONLY. Injected into www/index.html by scripts/copy-web.mjs, which
+   places the <link> at the end of <head> so it loads AFTER styles.css and its
+   :root block wins. legacy-app/ and the TWA never see this file — the web app
+   and the existing signed APK keep their current navy/green/gold look exactly.
+
+   HOW IT WORKS
+   ------------
+   styles.css is already fully variable-driven: nearly every rule in its 1,346
+   lines reads var(--bg-*), var(--acc*), var(--ink*), var(--line*) rather than
+   literal colours. So the bulk of the re-skin is done by REDEFINING those
+   variables against the new palette, not by rewriting components. The
+   component blocks further down exist only for the places styles.css hardcodes
+   a colour, or where the brand wants a gradient/glow that no variable could
+   express.
+
+   COLOUR PROVENANCE — sampled from the official logo, not invented
+   ---------------------------------------------------------------
+   Every core value below was measured off
+   native-src/assets/brand/source/cricketconnect-logo-source.png by quantising
+   the image and taking the most-saturated pixels per hue family:
+
+     #020C1B  stadium sky (6.5% of the logo)   -> bg-primary
+     #041221  dominant dark field (17.9%)      -> bg-secondary
+     #122C52  mid navy (10.7%)                 -> raised surface
+     #1B46ED  most vivid blue (27,477 px)      -> deep blue
+     #59C3F8  icon border glow (1,840 px)      -> cyan
+     #A4F851  most vivid green (13,280 px)     -> lime / signature accent
+     #8DE789  softer green (5.6%)              -> green
+     #EFB23E  ball motion trail                -> gold
+     #E4322A  the cricket ball                 -> red / danger
+     #F5F5F0  "CRICKET" wordmark (7.8%)        -> text (warm white, not #FFF)
+
+   THREE DELIBERATE DEPARTURES, all flagged rather than hidden:
+
+   1. The brief specified cyan #00D4FF and neon green #39FF14. The logo's real
+      accents are a softer sky-cyan (#59C3F8) and a yellow-leaning lime
+      (#A4F851) — there is very little true cyan in it at all (1,840 vivid
+      cyan pixels against 27,477 blue and 13,280 green). The logo won, since
+      the brief also said to treat it as the primary reference and not to
+      redesign it. #39FF14 next to this logo reads as a different product.
+
+   2. --cc-blue is #3D7BFF rather than the logo's own #1B46ED or the brief's
+      #006FFF. The logo blue is an indigo that goes muddy against a near-black
+      navy at button size. #3D7BFF keeps the hue and clears the background.
+
+   3. --cc-danger is #D42A22, a touch deeper than the ball's own #E4322A.
+      Reason is measured, not aesthetic: white text on #E4322A scores 4.39:1,
+      just under the 4.5:1 WCAG AA threshold for body-size text, and .btn is
+      15px. #D42A22 scores 5.06:1. Same for the blue in (2) — the dark button
+      ink hits 4.20:1 on #2E6BFF but 4.93:1 on #3D7BFF. Both were solved by
+      computing the ratios, not by eye.
+   =========================================================================== */
+
+:root{
+  /* ---- canonical CricketConnect tokens (the names the brief asked for) ---- */
+  --cc-bg-primary:#020C1B;
+  --cc-bg-secondary:#041221;
+  --cc-surface:#0A1B31;
+  --cc-surface-2:#122C52;
+
+  --cc-blue-deep:#133587;
+  --cc-blue:#3D7BFF;
+  --cc-cyan:#59C3F8;
+  --cc-green:#8DE789;
+  --cc-green-deep:#3E8E4F;
+  --cc-lime:#A4F851;
+
+  --cc-gold:#EFB23E;
+  --cc-danger:#D42A22;
+  --cc-warning:#EFB23E;
+  --cc-success:#8DE789;
+
+  --cc-text:#F5F5F0;
+  --cc-text-secondary:#A9B8C8;
+  --cc-border:rgba(89,195,248,.13);
+  --cc-border-strong:rgba(89,195,248,.24);
+
+  /* ---- signature gradient: blue -> cyan -> green ----
+     Reserved for primary actions and the few "this is the important thing on
+     screen" moments. Applying it everywhere would destroy its job as a
+     hierarchy signal, which is the whole reason it exists. */
+  --cc-gradient:linear-gradient(100deg,#3D7BFF 0%,#59C3F8 46%,#A4F851 100%);
+  --cc-gradient-soft:linear-gradient(100deg,rgba(61,123,255,.20) 0%,rgba(89,195,248,.16) 46%,rgba(164,248,81,.16) 100%);
+
+  /* ---- glow tokens ---- */
+  --cc-glow-blue:0 6px 22px -8px rgba(61,123,255,.55);
+  --cc-glow-cyan:0 0 0 1px rgba(89,195,248,.28), 0 6px 20px -10px rgba(89,195,248,.5);
+  --cc-glow-lime:0 0 14px -2px rgba(164,248,81,.45);
+
+  /* ---- radius / typography scale ---- */
+  --cc-r-sm:10px;
+  --cc-r-md:14px;
+  --cc-r-lg:18px;
+  --cc-r-xl:22px;
+
+  /* Poppins first, then the Android system stack. NOTE: the Poppins webfont
+     files are NOT bundled in this project — nothing is downloaded at runtime
+     because the app has to work at a ground with no signal. Until the .woff2
+     files are dropped into native-src/assets/fonts/ and an @font-face block
+     added here, this renders as Roboto on device. See THEME.md. */
+  --cc-font:"Poppins","Roboto","Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+
+  /* =====================================================================
+     Remap of styles.css's existing variables onto the palette above.
+     This is what actually re-skins the ~1,300 lines of existing CSS.
+     ===================================================================== */
+  --bg-0:var(--cc-bg-primary);
+  --bg-1:var(--cc-bg-secondary);
+  --bg-2:var(--cc-surface);
+  --bg-3:var(--cc-surface-2);
+
+  --acc:var(--cc-blue);
+  --acc-2:var(--cc-cyan);
+  --acc-dim:var(--cc-blue-deep);
+  --acc-glow:rgba(61,123,255,.22);
+
+  /* --live is styles.css's DANGER colour as well as its live marker
+     (.btn.danger reads var(--live)), so it stays red. The live-match
+     indicators are turned green individually further down instead — turning
+     this token green would make every destructive button green, which the
+     brief explicitly rules out. */
+  --live:var(--cc-danger);
+  --warn:var(--cc-warning);
+  --info:var(--cc-cyan);
+
+  --ink:var(--cc-text);
+  --ink-2:#D7E2EC;
+  --ink-dim:var(--cc-text-secondary);
+
+  --line:var(--cc-border);
+  --line-2:var(--cc-border-strong);
+
+  /* legacy aliases — kept pointing at real greens/golds so semantic names
+     don't lie (.run-btn.four wants an actual green border, not the accent) */
+  --gold:var(--cc-gold);
+  --gold-soft:#F7CD72;
+  --green:var(--cc-green-deep);
+  --green-2:var(--cc-green);
+  --red:var(--cc-danger);
+  --card-bg:var(--cc-surface);
+  --card-border:var(--cc-border);
+  --brand-green:var(--cc-green);
+  --brand-blue:var(--cc-blue);
+  --brand-red:var(--cc-danger);
+}
+
+/* ===========================================================================
+   TYPOGRAPHY
+   =========================================================================== */
+body{
+  font-family:var(--cc-font);
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{letter-spacing:-.2px;}
+h1{font-weight:800;}
+h2,h3{font-weight:600;}
+/* Scores and stats are the numbers people squint at from a folding chair at
+   the boundary — tabular figures stop them jittering as they tick over. */
+.sb-score,.rh-score,.fx-score,.stat-box b,.hero-stat b,.rank-val,.op-count{
+  font-weight:800;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-.5px;
+}
+
+/* ===========================================================================
+   STADIUM BACKDROP
+   Deep navy with floodlight bloom — blue from above, a faint lime spill from
+   the pitch below. Both are very low alpha on purpose: this has to read as
+   premium sports tech, not as a gaming launcher.
+   =========================================================================== */
+body{
+  background:var(--cc-bg-primary);
+  background-image:
+    radial-gradient(1000px 520px at 82% -10%, rgba(61,123,255,.16), transparent 62%),
+    radial-gradient(760px 440px at 6% 4%, rgba(89,195,248,.09), transparent 60%),
+    radial-gradient(900px 600px at 50% 108%, rgba(164,248,81,.06), transparent 62%);
+  background-attachment:fixed;
+}
+
+/* ===========================================================================
+   CARDS
+   =========================================================================== */
+.card{
+  background:linear-gradient(160deg, var(--cc-surface) 0%, var(--cc-bg-secondary) 100%);
+  border:1px solid var(--cc-border);
+  border-radius:var(--cc-r-lg);
+  box-shadow:
+    inset 0 1px 0 rgba(89,195,248,.07),
+    0 12px 28px -18px rgba(0,0,0,.75);
+}
+.auth-card,.profile-chip,.skeleton-card,.mini-card,.player-card,.tour-card,.live-card{
+  border-color:var(--cc-border);
+}
+.scoreboard{
+  background:
+    radial-gradient(120% 150% at 100% -20%, rgba(61,123,255,.20), transparent 58%),
+    linear-gradient(160deg, var(--cc-surface-2) 0%, var(--cc-surface) 100%);
+  border:1px solid var(--cc-border-strong);
+  border-radius:var(--cc-r-lg);
+}
+.hero{
+  background:
+    radial-gradient(120% 140% at 100% -10%, rgba(61,123,255,.26), transparent 55%),
+    radial-gradient(90% 120% at -10% 115%, rgba(164,248,81,.12), transparent 60%),
+    linear-gradient(160deg, var(--cc-surface) 0%, var(--cc-bg-primary) 100%);
+  border-radius:var(--cc-r-xl);
+}
+
+/* ===========================================================================
+   BUTTONS
+   Primary carries the brand gradient; everything else stays quiet so the
+   primary action is unmistakable.
+   =========================================================================== */
+.btn{
+  background:var(--cc-gradient);
+  color:#03121F;                 /* dark ink — the gradient's green end is far too light for white text */
+  font-weight:700;
+  border-radius:var(--cc-r-md);
+  box-shadow:var(--cc-glow-blue);
+}
+@media (hover:hover){ .btn:hover:not(:disabled){filter:brightness(1.06);} }
+.btn:active:not(:disabled){filter:brightness(.94); transform:scale(.99);}
+.btn:focus-visible{outline:2px solid var(--cc-cyan); outline-offset:2px;}
+
+.btn.secondary{
+  background:rgba(89,195,248,.06);
+  border:1px solid var(--cc-border-strong);
+  color:var(--cc-text);
+  box-shadow:none;
+}
+.btn.gold{
+  background:var(--cc-gold);
+  color:#231703;
+  box-shadow:0 6px 20px -10px rgba(239,178,62,.6);
+}
+/* Destructive stays unmistakably red — never the brand gradient, never green. */
+.btn.danger{
+  background:var(--cc-danger);
+  color:#fff;
+  box-shadow:0 6px 20px -10px rgba(212,42,34,.6);
+}
+.btn-google{border-color:var(--cc-border-strong);}
+
+/* ===========================================================================
+   SCORING CONTROLS
+   Visual only. These are pressed hundreds of times per innings, often one
+   handed in sunlight, so the brief's "large touch targets" rule outranks
+   the styling: padding and font-size are held at or above the existing
+   values, never tightened for looks.
+   =========================================================================== */
+.run-btn{
+  background:rgba(89,195,248,.05);
+  border:1px solid var(--cc-border-strong);
+  border-radius:var(--cc-r-md);
+  color:var(--cc-text);
+  min-height:56px;
+}
+.run-btn:active{background:rgba(61,123,255,.26);}
+.run-btn.four{border-color:var(--cc-green); color:var(--cc-green);}
+.run-btn.six{border-color:var(--cc-lime); color:var(--cc-lime); box-shadow:var(--cc-glow-lime);}
+.extra-btn{
+  background:rgba(89,195,248,.05);
+  border:1px solid var(--cc-border);
+  border-radius:var(--cc-r-sm);
+  min-height:42px;
+}
+.extra-btn:active{background:rgba(61,123,255,.22);}
+
+.over-ball{background:rgba(89,195,248,.10);}
+.freehit-banner{
+  background:var(--cc-gradient-soft);
+  border:1px solid var(--cc-border-strong);
+}
+
+/* ===========================================================================
+   LIVE INDICATORS
+   The brief asks for a neon-green LIVE marker. Applied to the live markers
+   specifically (not the shared --live token, which also drives destructive
+   buttons — see the :root note).
+   =========================================================================== */
+.live-badge{color:var(--cc-lime);}
+.badge-live{
+  background:rgba(164,248,81,.13);
+  border:1px solid rgba(164,248,81,.42);
+  color:var(--cc-lime);
+}
+.badge-live i{background:var(--cc-lime); box-shadow:var(--cc-glow-lime);}
+.sidenav .pill-live{
+  background:var(--cc-lime);
+  color:#0A2010;                 /* dark ink on lime — white on lime fails contrast badly */
+}
+.pill-live.mini{
+  background:var(--cc-lime);
+  box-shadow:0 0 0 2px var(--cc-bg-primary), var(--cc-glow-lime);
+}
+
+/* ===========================================================================
+   NAVIGATION
+   =========================================================================== */
+.tabbar{
+  background:rgba(4,18,33,.94);
+  backdrop-filter:blur(14px);
+  border-top:1px solid var(--cc-border);
+}
+.tabbar button.active{color:var(--cc-lime);}
+/* Active-tab glow: a small pill of light behind the icon rather than a glowing
+   label, which stays legible where text-shadow on 10px type does not. */
+.tabbar button.active::before{
+  content:"";
+  position:absolute; top:4px; left:50%; transform:translateX(-50%);
+  width:34px; height:3px; border-radius:3px;
+  background:var(--cc-gradient);
+  box-shadow:var(--cc-glow-lime);
+}
+.sidebar{background:var(--cc-bg-secondary); border-right:1px solid var(--cc-border);}
+.sidenav button.active{
+  background:var(--cc-gradient-soft);
+  color:var(--cc-text);
+  border-radius:var(--cc-r-sm);
+}
+.sidebar-promo{background:var(--cc-surface); border:1px solid var(--cc-border);}
+.topbar .brand .ball{
+  background:radial-gradient(circle at 35% 30%, #F0665C, var(--cc-danger));
+  border-color:rgba(255,255,255,.28);
+}
+
+/* ===========================================================================
+   CHIPS / PILLS / BADGES
+   =========================================================================== */
+.chip{
+  background:rgba(89,195,248,.05);
+  border:1px solid var(--cc-border-strong);
+}
+.chip:active{background:rgba(61,123,255,.24);}
+.chip.pick{border-color:var(--cc-border);}
+.seg{background:rgba(89,195,248,.05); border:1px solid var(--cc-border);}
+.badge{border-color:var(--cc-border-strong);}
+.role-badge{
+  background:var(--cc-gradient-soft);
+  border:1px solid var(--cc-border-strong);
+  color:var(--cc-cyan);
+}
+
+/* ===========================================================================
+   LOADING / SKELETON
+   Shimmer tinted to the palette instead of neutral white.
+   =========================================================================== */
+.skeleton{
+  background:linear-gradient(90deg,
+    rgba(89,195,248,.05) 25%,
+    rgba(89,195,248,.13) 37%,
+    rgba(89,195,248,.05) 63%);
+  background-size:400% 100%;
+}
+.skeleton-card{background:var(--cc-surface); border:1px solid var(--cc-border);}
+.spinner{border-top-color:var(--cc-cyan);}
+
+/* ===========================================================================
+   FORMS
+   =========================================================================== */
+input,select,textarea{
+  background:var(--cc-bg-secondary);
+  border:1px solid var(--cc-border);
+  border-radius:var(--cc-r-sm);
+  color:var(--cc-text);
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--cc-cyan);
+  box-shadow:0 0 0 3px rgba(89,195,248,.16);
+  outline:none;
+}
+
+/* ===========================================================================
+   BRAND LOCKUP (sign-in screen)
+   brand-native.js swaps the inline SVG brandmark for the real logo artwork;
+   these rules give it room and a floodlit halo.
+   =========================================================================== */
+.lockup-mark img.cc-brand-img{filter:drop-shadow(0 10px 26px rgba(61,123,255,.45));}
+.lockup-name span{color:var(--cc-lime);}
+.lockup-rule{background:var(--cc-gradient); height:2px; opacity:.85;}
+
+/* Logo swapped in by brand-native.js.
+
+   Sized ONLY by the explicit width/height attributes brand-native.js sets, never
+   by the container. An earlier version used width:100%;height:100% here, which
+   made the mark in the top bar expand to the full width of .brand and cover the
+   Record Match / Home buttons — the container has no width of its own, so 100%
+   resolved to the whole row. max-width is the only stretch guard needed. */
+img.cc-brand-img{display:block; object-fit:contain; max-width:100%; height:auto;}
+
+/* ===========================================================================
+   ACCESSIBILITY GUARDS
+   The futuristic styling above must not cost usability, so these come last and
+   deliberately override it.
+   =========================================================================== */
+/* Never let a themed control fall under the 44px comfortable-touch minimum. */
+.btn,.run-btn,.quick-btn,.action-row-btn,.tabbar button{min-height:44px;}
+
+/* Visible keyboard/switch-access focus everywhere, not just on .btn. */
+a:focus-visible,button:focus-visible,input:focus-visible,
+select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{
+  outline:2px solid var(--cc-cyan);
+  outline-offset:2px;
+}
+
+/* Honour the OS "reduce motion" setting — the pulse and shimmer are decorative,
+   and for some users they are actively unpleasant. */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+  }
+}
+
+/* ===========================================================================
+   RESPONSIVENESS
+   Small phones (<=360px logical px, e.g. older Redmi/Galaxy A) get the padding
+   and the 44px oversized score buttons trimmed just enough to stop the scoring
+   grid wrapping, without going under the touch minimum.
+   =========================================================================== */
+@media (max-width:360px){
+  #app{padding-left:10px; padding-right:10px;}
+  .sb-score{font-size:38px;}
+  .run-btn{min-height:50px; font-size:18px;}
+}
+@media (min-width:430px){
+  .sb-score{font-size:48px;}
+}

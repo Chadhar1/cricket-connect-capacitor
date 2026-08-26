@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation"
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.NoActionBarLaunch"
+            android:launchMode="singleTask"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
+    </application>
+
+    <!-- Permissions -->
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Required by @capacitor-community/camera-preview for Record Match's
+         native camera pipeline (see recorder-native.js / RECORD-MATCH-ARCHITECTURE.md).
+         CAMERA is what the plugin's own README explicitly requires. RECORD_AUDIO is
+         mandatory, not optional: CameraActivity.java calls setAudioSource()
+         unconditionally and exposes no way to record video only. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- MODIFY_AUDIO_SETTINGS is NOT used by our own code, and it is easy to
+         mistake for dead weight. It is load-bearing.
+
+         Capacitor's BridgeWebChromeClient.onPermissionRequest() handles a
+         getUserMedia({audio:true}) call by requesting a BATCH:
+
+             permissionList.add(Manifest.permission.MODIFY_AUDIO_SETTINGS);
+             permissionList.add(Manifest.permission.RECORD_AUDIO);
+
+         and its result callback requires EVERY permission in that batch to come
+         back granted:
+
+             boolean granted = true;
+             for (entry : isGranted.entrySet()) if (!entry.getValue()) granted = false;
+
+         Android instantly denies any permission a manifest does not declare, and
+         does so WITHOUT showing a dialog. So while this was missing, the mic
+         request was auto-failing the batch: no permission prompt ever appeared,
+         getUserMedia rejected immediately, and recording died at
+         MediaRecorder.setAudioSource() with "setAudioSource failed".
+
+         It is a normal (non-dangerous) permission, so declaring it is granted at
+         install time and adds no prompt of its own. Removing it silently breaks
+         Record Match again. -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <!-- Ground Location Foundation (GROUND 9) — "Use My Current Location" in
+         the ground picker calls the standard web navigator.geolocation API
+         (native-src/, no new Capacitor plugin — see GROUND-ARCHITECTURE.md
+         for why @capacitor/geolocation isn't needed). Verified against the
+         real installed @capacitor/android source before adding this:
+         BridgeWebChromeClient.onGeolocationPermissionsShowPrompt() requests
+         exactly these two permissions as a batch, same
+         request-then-callback shape as the microphone fix above. Omitting
+         either one reproduces that exact bug for location instead: the
+         permission is auto-denied with no dialog ever shown, and
+         getCurrentPosition()'s error callback fires immediately with
+         PERMISSION_DENIED. Foreground/one-shot only — this app never
+         requests ACCESS_BACKGROUND_LOCATION and never should; see
+         LOCATION-ROADMAP.md / GROUND-ARCHITECTURE.md for why. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- required="false": Record Match is one optional feature, not the whole
+         app — a device with no camera should still install and use scoring,
+         tournaments, stats, etc. Same reasoning as the TWA's AndroidManifest.xml
+         (a separate file, cricket-connect-android/ — not touched by this edit). -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+</manifest>

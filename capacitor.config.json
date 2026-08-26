@@ -1,0 +1,18 @@
+{
+  "appId": "com.cricketconnect.app",
+  "appName": "Cricket Connect",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 800,
+      "backgroundColor": "#060B14",
+      "androidSplashResourceName": "splash"
+    }
+  }
+}

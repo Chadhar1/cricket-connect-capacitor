@@ -1,0 +1,120 @@
+diff --git a/node_modules/@capacitor-community/camera-preview/android/src/main/java/com/ahm/capacitor/camera/preview/CameraActivity.java b/node_modules/@capacitor-community/camera-preview/android/src/main/java/com/ahm/capacitor/camera/preview/CameraActivity.java
+index c1f8858..4939d83 100644
+--- a/node_modules/@capacitor-community/camera-preview/android/src/main/java/com/ahm/capacitor/camera/preview/CameraActivity.java
++++ b/node_modules/@capacitor-community/camera-preview/android/src/main/java/com/ahm/capacitor/camera/preview/CameraActivity.java
+@@ -129,6 +129,48 @@ public class CameraActivity extends Fragment {
+         this.height = height == null ? ViewGroup.LayoutParams.MATCH_PARENT : height;
+     }
+ 
++    /**
++     * CricketConnect patch (Record Match small-window / live resize).
++     *
++     * setRect() above only updates these fields for the NEXT time
++     * createCameraPreview() runs — but that method is guarded by
++     * `if (mPreview == null)`, so once the preview is on screen it never
++     * runs again, and there was previously no way to resize a preview that
++     * is already running.
++     *
++     * This applies a new size/position to the live frameContainerLayout
++     * directly. It touches ONLY that view's LayoutParams — never mCamera,
++     * mPreview, or the CameraActivity's MediaRecorder — so an in-progress
++     * recording is not affected. This is deliberately the same pair of
++     * calls (mutate LayoutParams, then invalidate()+requestLayout()) that
++     * onConfigurationChanged() below already performs on every screen
++     * rotation, including while recording — that existing, already-relied-
++     * upon behavior is the evidence this kind of live layout change is
++     * safe here, not a new assumption.
++     */
++    public void updateRect(final int newX, final int newY, final Integer newWidth, final Integer newHeight) {
++        this.x = newX;
++        this.y = newY;
++        this.width = newWidth == null ? ViewGroup.LayoutParams.MATCH_PARENT : newWidth;
++        this.height = newHeight == null ? ViewGroup.LayoutParams.MATCH_PARENT : newHeight;
++
++        final Activity activity = getActivity();
++        if (activity == null || frameContainerLayout == null) {
++            return; // preview isn't running yet — nothing on screen to resize
++        }
++
++        activity.runOnUiThread(new Runnable() {
++            @Override
++            public void run() {
++                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
++                layoutParams.setMargins(x, y, 0, 0);
++                frameContainerLayout.setLayoutParams(layoutParams);
++                frameContainerLayout.invalidate();
++                frameContainerLayout.requestLayout();
++            }
++        });
++    }
++
+     private void createCameraPreview() {
+         if (mPreview == null) {
+             setDefaultCameraId();
+diff --git a/node_modules/@capacitor-community/camera-preview/android/src/main/java/com/ahm/capacitor/camera/preview/CameraPreview.java b/node_modules/@capacitor-community/camera-preview/android/src/main/java/com/ahm/capacitor/camera/preview/CameraPreview.java
+index 78f7f4c..2d45864 100644
+--- a/node_modules/@capacitor-community/camera-preview/android/src/main/java/com/ahm/capacitor/camera/preview/CameraPreview.java
++++ b/node_modules/@capacitor-community/camera-preview/android/src/main/java/com/ahm/capacitor/camera/preview/CameraPreview.java
+@@ -79,6 +79,62 @@ public class CameraPreview extends Plugin implements CameraActivity.CameraPrevie
+         fragment.setOpacity(opacity);
+     }
+ 
++    /**
++     * CricketConnect patch (Record Match small-window / live resize).
++     *
++     * Resizes/repositions an ALREADY-RUNNING preview in place — start() only
++     * accepts x/y/width/height once, at creation, with no way to change them
++     * afterward. This lets a caller shrink the live preview into a small
++     * window (so app UI can stay usable underneath/around it) or expand it
++     * back to full screen, without stopping the preview or touching an
++     * in-progress recording — see CameraActivity.updateRect()'s own comment
++     * for why that is safe.
++     *
++     * Same option names/units (dp) as start(), same conversion, so callers
++     * can reuse the exact values they already pass there.
++     */
++    @PluginMethod
++    public void resizePreview(final PluginCall call) {
++        if (this.hasCamera(call) == false) {
++            call.reject("Camera is not running");
++            return;
++        }
++
++        final Integer x = call.getInt("x", 0);
++        final Integer y = call.getInt("y", 0);
++        final Integer width = call.getInt("width", 0);
++        final Integer height = call.getInt("height", 0);
++        final Integer paddingBottom = call.getInt("paddingBottom", 0);
++
++        bridge
++            .getActivity()
++            .runOnUiThread(
++                new Runnable() {
++                    @Override
++                    public void run() {
++                        DisplayMetrics metrics = getBridge().getActivity().getResources().getDisplayMetrics();
++
++                        int computedX = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, x, metrics);
++                        int computedY = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, y, metrics);
++
++                        int computedPaddingBottom = paddingBottom != 0
++                            ? (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, paddingBottom, metrics)
++                            : 0;
++
++                        Integer computedWidth = width != 0
++                            ? (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, width, metrics)
++                            : null;
++                        Integer computedHeight = height != 0
++                            ? (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, metrics) - computedPaddingBottom
++                            : null;
++
++                        fragment.updateRect(computedX, computedY, computedWidth, computedHeight);
++                        call.resolve();
++                    }
++                }
++            );
++    }
++
+     @PluginMethod
+     public void capture(PluginCall call) {
+         if (this.hasCamera(call) == false) {

@@ -1,0 +1,28 @@
+{
+  "name": "cricket-connect-capacitor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CricketConnect — Capacitor native Android wrapper. Reuses the existing legacy-app web code (copied, not moved) and adds native camera/video recording via a Capacitor plugin. Does not replace or modify the existing TWA in ../cricket-connect-android.",
+  "scripts": {
+    "sync": "npx cap sync android",
+    "open:android": "npx cap open android",
+    "copy-web": "node scripts/copy-web.mjs",
+    "postinstall": "patch-package"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/filesystem": "^7.0.0",
+    "@capacitor/share": "^7.0.0",
+    "@capacitor/status-bar": "^7.0.0",
+    "@capacitor/splash-screen": "^7.0.0",
+    "@capacitor-community/camera-preview": "7.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0",
+    "patch-package": "^8.0.0"
+  },
+  "_versionNotes": "RESOLVED (Phase 3): npm install completed successfully on the real machine — @capacitor/core installed at 7.6.8, @capacitor-community/camera-preview at 7.0.2, confirmed by reading the actual installed package.json files, not guessed. camera-preview's README states outright 'Version 7 of this plugin requires Capacitor 7' (its peerDependencies range of >=7.0.0 is looser than that, but the README's explicit statement is the more trustworthy signal), so pinning the whole toolchain to ^7.0.0 instead of the newer 8.x was the right call — no longer a caveat, just confirmed fact. Official @capacitor/* plugins always track core's major version, so ^7.0.0 is safe for all of them. @capacitor/push-notifications deliberately not listed yet — Section 22 puts it after Record Match is stable (Milestone 16), installing it now would violate 'do not install everything blindly'.",
+  "_patchNotes": "Record Match small-window live-resize (see RECORD-MATCH-BACKGROUND-ARCHITECTURE.md): @capacitor-community/camera-preview has no way to resize/reposition an ALREADY-RUNNING preview — start() only accepts x/y/width/height once, at creation (confirmed by reading CameraPreview.java/CameraActivity.java directly). patches/@capacitor-community+camera-preview+7.0.2.patch adds CameraActivity.updateRect() and a new CameraPreview.resizePreview() plugin method that mutate the live preview's LayoutParams in place — the same operation onConfigurationChanged() already performs on every screen rotation, including mid-recording, so it does not touch mCamera/mPreview/MediaRecorder and does not interrupt an active recording. patch-package (postinstall, above) reapplies this automatically after every npm install, so it survives a clean install or a plugin version bump being re-fetched. Verified by hand from this sandbox (no npm registry access here — see README.md) using `git apply --check` and `patch -p1` against a reconstructed pristine copy of the two files, both applying cleanly and reproducing the patched source byte-for-byte; NOT yet verified end-to-end through a real `npm install` + `patch-package` run, which needs your machine — see the report for the exact command to confirm."
+}

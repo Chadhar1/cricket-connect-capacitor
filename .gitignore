@@ -1,0 +1,17 @@
+# Dependencies — reinstalled from package.json + package-lock.json.
+# patch-package's postinstall reapplies patches/ automatically afterward.
+node_modules/
+
+# Generated web assets — copied from ../legacy-app (+ native-src overlays)
+# by scripts/copy-web.mjs. Never hand-edited; regenerate with
+# `npm run copy-web`. legacy-app and native-src are the real sources.
+www/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+
+# android/ has its own .gitignore for Gradle/build output — not duplicated here.
