@@ -1,0 +1,82 @@
+﻿
+09-29 18:40:12.211 14239 14239 D Sentry  : UncaughtExceptionHandlerIntegration enabled: true
+09-29 18:40:12.211 14239 14239 D Sentry  : default UncaughtExceptionHandler 
+class='com.android.internal.os.RuntimeInit$KillApplicationHandler'
+09-29 18:40:12.211 14239 14239 D Sentry  : UncaughtExceptionHandlerIntegration installed.
+09-29 18:40:19.637 17007 17491 E ActivityManagerWrapper:  mainTaskId=1906   userId=0   windowMode=1   
+isExcludedFromRecents=false   baseIntent=Intent { act=android.intent.action.MAIN flag=268435456 
+cmp=ComponentInfo{com.google.android.apps.playconsole/com.google.android.apps.play.console.mobile.MainActivity} }
+09-29 18:40:19.819 17007 17491 D RecentsTaskLoader: reloadTasksData [TaskKey{id=1906, stackId=0, baseIntent=Intent { 
+act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 
+pkg=com.google.android.apps.playconsole 
+cmp=com.google.android.apps.playconsole/com.google.android.apps.play.console.mobile.MainActivity }, userId=0, 
+lastActiveTime=1334850857, windowingMode=1, isThumbnailBlur=false, isAccessLocked=false, isScreening=false, topActivi
+ty=ComponentInfo{com.google.android.apps.playconsole/com.google.android.apps.play.console.mobile.MainActivity}, 
+mHashCode=57705198}, title=Play Console, titleDescription=Play Console, bounds=null, isLaunchTarget=false, 
+isStackTask=true, isSystemApp=false, isDockable=true, baseActivity=ComponentInfo{com.google.android.apps.playconsole/
+com.google.android.apps.play.console.mobile.MainActivity}, isLocked=false, mNeedHide=false, hasMultipleTasks=false, 
+cti1Key=, cti2Key=, cti1Task=, cti2Task=] 
+09-29 18:40:19.852 17007 17491 E ActivityManagerWrapper:  mainTaskId=1906   userId=0   windowMode=1   
+isExcludedFromRecents=false   baseIntent=Intent { act=android.intent.action.MAIN flag=268435456 
+cmp=ComponentInfo{com.google.android.apps.playconsole/com.google.android.apps.play.console.mobile.MainActivity} }
+09-29 18:40:19.857 17007 17491 D RecentsTaskLoader: reloadTasksData [TaskKey{id=1906, stackId=0, baseIntent=Intent { 
+act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 
+pkg=com.google.android.apps.playconsole 
+cmp=com.google.android.apps.playconsole/com.google.android.apps.play.console.mobile.MainActivity }, userId=0, 
+lastActiveTime=1334850857, windowingMode=1, isThumbnailBlur=false, isAccessLocked=false, isScreening=false, topActivi
+ty=ComponentInfo{com.google.android.apps.playconsole/com.google.android.apps.play.console.mobile.MainActivity}, 
+mHashCode=57705198}, title=Play Console, titleDescription=Play Console, bounds=null, isLaunchTarget=false, 
+isStackTask=true, isSystemApp=false, isDockable=true, baseActivity=ComponentInfo{com.google.android.apps.playconsole/
+com.google.android.apps.play.console.mobile.MainActivity}, isLocked=false, mNeedHide=false, hasMultipleTasks=false, 
+cti1Key=, cti2Key=, cti1Task=, cti2Task=] 
+09-29 18:40:21.036 26238 26238 E Capacitor/Console: File: https://localhost/app.js - Line 3591 - Msg: Uncaught (in 
+promise) ReferenceError: resolveGroundLinkAtSave is not defined
+09-29 18:40:21.563  1064  1684 I SensorSavedChannel: [-1864,-397,226]==>gyro_bias.json
+09-29 18:40:23.398 26238 26238 E Capacitor/Console: File: https://localhost/app.js - Line 3591 - Msg: Uncaught (in 
+promise) ReferenceError: resolveGroundLinkAtSave is not defined
+09-29 18:40:24.679 26238 26238 E Capacitor/Console: File: https://localhost/app.js - Line 3591 - Msg: Uncaught (in 
+promise) ReferenceError: resolveGroundLinkAtSave is not defined
+09-29 18:40:24.744 23314 23682 I PowerRankHelperHolder: mDesktopPkgSet =[com.rs.playerjet, netshare.wifihotspot, 
+com.oceanwing.soundcore, com.playnet.androidtv.ads, ae.gov.mol, us.socol.tasdeeq, com.huawei.smarthome, 
+com.soundcloud.android, com.sukhavati.gotoplaying.bubble.BubbleShooter.mint, com.dubizzle.horizontal, 
+com.miui.compass, com.namshi.android, com.miui.huanji, com.miui.calculator, pious.rtatheorytest, 
+com.google.android.talk, com.android.deskclock, com.ahmad.mseries, icv.resume.curriculumvitae, 
+org.zwanoo.android.speedtest, com.mxtech.videoplayer.ad, com.xiaomi.finddevice, com.google.android.apps.photos, 
+com.run.tower.defense, com.shaiz.tensports.worldcupcricket, jp.co.canon.ic.cameraconnect, 
+com.samsung.android.oneconnect, us.ultrasurf.mobile.ultrasurf, com.android.nfc, com.duokan.phone.remotecontroller, 
+com.tahaluf.psbd, com.google.earth, com.discord, com.pakvpnnew.mzhtechvpn, com.miui.videoplayer, 
+com.splitvideo.fullvideo.uploader.statussaver.mp3converter.royalprincessmakeover, com.mfashiongallery.emag, 
+com.lenovo.anyshare.gps, invo8.meezan.mb, audioeditor.musiceditor.soundeditor.songeditor, com.payby.android.cashnow, 
+download.video.tiktok.nowatermark.tiktokdownloader, com.miui.home, com.bstar.intl, com.sanhe.clipclaps, 
+com.blockchainvault, com.crrepa.band.dafit, com.sensustech.acremotecontrol, com.scanai.document.debug, 
+com.android.quicksearchbox, com.addictive.strategy.army, ae.uaepass.mainapp, com.facebook.katana, 
+com.personale.credit.carry.cash.loan.paisaya, com.xiaomi.smarthome, com.miui.miwallpaper, 
+com.google.android.apps.playconsole, vpn.turkey, eu.tsoml.graphicssettings, com.diskwalaapp, 
+com.easybrain.art.puzzle, com.android.thememanager, com.insurance.iole, main.ClicFlyer, 
+com.newtoolsworks.sockstunnel, com.android.incallui, com.taptapsend, com.xiaomi.glgm, com.popularapp.sevenmins, 
+com.sec.android.app.shealth, com.google.android.apps.translate, com.google.android.apps.youtube.music, 
+com.tencent.mm, com.sports.live.cricket.tv, com.linkedin.android, com.roblox.client, org.thoughtcrime.securesms, 
+com.shexa.nfcreaderplus, com.miui.mishare.connectivity, com.emiratesnbd.android, app.netmirror.netmirror, 
+com.xiaomi.scanner, com.xiaomi.midrop, com.nf.snake, com.google.android.apps.meetings, com.whoop.android, 
+com.techlogix.mobilinkcustomer, com.einnovation.temu, com.google.android.apps.blogger, pk.com.telenor.phoenix, 
+com.cricgenix.live.cricket, com.google.android.apps.paidtasks, com.gofiveglobal.fashion.dress.up, 
+com.mi.android.globalFileexplorer, com.openai.chatgpt, com.google.android.apps.docs, com.higermedia.higervpn.vpn, 
+com.miui.gallery, com.asapps.pakistanvpn, com.google.android.apps.adm, com.spotify.music, com.whatsapp.w4b, 
+im.thebot.messenger, com.google.android.videos, com.miui.notes, com.microsoft.office.officehubrow, 
+com.landmarkgroup.splashfashions, com.myc3card.app, com.freetime.mate, com.sec.android.app.sbrowser, 
+com.pdfconverter.pdfcompressor, com.whatsapp, app.com.brd, com.security.xvpn.z35kb, com.superking.ludo.star, 
+com.vivo.easyshare, com.rapid.short.tv, abudhabi.tamm.live, com.logame.eliminateintruder3d, com.nayapay.app, 
+co.tamara.user, com.xiaomi.calendar, com.google.android.dialer, com.lemon.lvoverseas, com.global.foodpanda.android, 
+com.google.android.music, com.mi.globalminusscreen, com.quran.labs.androidquran, com.avanza.ambitwizfbl, 
+com.milink.service, com.fiya.android, com.miniclip.eightballpool, com.fast.free.unblock.secure.vpn, 
+com.gonext.deepcleaner, com.miui.player, com.tencent.ig, com.Etisalat.ETIDA, com.arshad.rahihejazistickers, 
+com.mintgames.wordtrip, ru.dublgis.dgismobile, com.xiaomi.mipicks, com.techtool.wifiqrcodepasswordscanner, 
+com.yalla.yallagames, com.king.candycrushsaga, com.talabat, com.google.android.apps.walletnfcrel, 
+com.block.puzzle.game.hippo.mi, host.exp.exponent, com.twitter.android, com.free.vpn.turkey.proxy.planet, 
+com.remitly.androidapp, com.google.android.apps.bard, com.raafiya.universalacremotecontrol, 
+com.transguardgroup.transguardlms, com.google.android.apps.safetyhub, com.paypal.android.p2pmobile, 
+pitc.com.smartptw.onewindowapp, app.vercel.cricket_pi
+09-29 18:40:26.178 26238 26238 E Capacitor/Console: File: https://localhost/cloud.js - Line 999 - Msg: dailyCheckIn 
+failed: [object Object]
+
+

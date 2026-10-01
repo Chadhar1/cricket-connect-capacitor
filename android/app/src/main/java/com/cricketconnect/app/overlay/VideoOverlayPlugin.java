@@ -145,6 +145,121 @@ public class VideoOverlayPlugin extends Plugin {
         }, "cc-overlay-compositor").start();
     }
 
+    /**
+     * JS side (recorder-native.js) calls:
+     *
+     *   await Capacitor.Plugins.VideoOverlay.compositeHighlights({
+     *     videoPath: '/data/.../cache/cricketconnect-overlay-….mp4',
+     *     segments: [ { startMs: 12000, endMs: 20000 }, … ],  // padded, merged in JS
+     *     overlays: [ { path: '/…/ov0.png', startMs: 0, endMs: 4200 }, … ]  // same shape as burnIn
+     *   });
+     *
+     * and listens for 'highlightsProgress' events while it runs. Separate
+     * plugin method (not a flag on burnIn) because it runs a different native
+     * method — compositeSegments() on OverlayCompositor — built specifically
+     * for the "Save Highlights" option; see that method's own big comment for
+     * why trimming lives apart from the proven full-video burn-in path.
+     */
+    @PluginMethod
+    public void compositeHighlights(final PluginCall call) {
+        final String videoPath = normalise(call.getString("videoPath"));
+        if (videoPath == null || videoPath.isEmpty()) {
+            call.reject("videoPath is required");
+            return;
+        }
+        final File input = new File(videoPath);
+        if (!input.exists()) {
+            call.reject("Video not found: " + videoPath);
+            return;
+        }
+
+        JSArray segmentsArr = call.getArray("segments");
+        if (segmentsArr == null || segmentsArr.length() == 0) {
+            call.reject("segments is required (a non-empty list of {startMs, endMs})");
+            return;
+        }
+        final List<long[]> segments = new ArrayList<>();
+        try {
+            List<JSONObject> list = segmentsArr.toList();
+            for (JSONObject o : list) {
+                segments.add(new long[]{ o.optLong("startMs", 0), o.optLong("endMs", 0) });
+            }
+        } catch (Exception e) {
+            call.reject("Could not read the segments array: " + e.getMessage());
+            return;
+        }
+
+        String requestedOutput = normalise(call.getString("outputPath"));
+        if (requestedOutput == null || requestedOutput.isEmpty()) {
+            requestedOutput = new File(getContext().getCacheDir(),
+                "cricketconnect-highlights-" + System.currentTimeMillis() + ".mp4").getAbsolutePath();
+        }
+        final String outputPath = requestedOutput;
+        final int bitRate = call.getInt("bitRate", 0);
+
+        final List<OverlayCompositor.OverlaySpan> spans = new ArrayList<>();
+        JSArray overlays = call.getArray("overlays");
+        if (overlays != null) {
+            try {
+                List<JSONObject> list = overlays.toList();
+                for (JSONObject o : list) {
+                    String p = normalise(o.optString("path", null));
+                    if (p == null || p.isEmpty()) continue;
+                    spans.add(new OverlayCompositor.OverlaySpan(
+                        p,
+                        o.optLong("startMs", 0),
+                        o.optLong("endMs", 0)
+                    ));
+                }
+            } catch (Exception e) {
+                call.reject("Could not read the overlays array: " + e.getMessage());
+                return;
+            }
+        }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                File temp = new File(outputPath + ".part");
+                try {
+                    OverlayCompositor compositor = new OverlayCompositor(spans);
+                    compositor.compositeSegments(videoPath, temp.getAbsolutePath(), segments, bitRate,
+                        new OverlayCompositor.ProgressListener() {
+                            @Override
+                            public void onProgress(int percent) {
+                                JSObject data = new JSObject();
+                                data.put("percent", percent);
+                                notifyListeners("highlightsProgress", data);
+                            }
+                        });
+
+                    File finalFile = new File(outputPath);
+                    if (finalFile.exists() && !finalFile.delete()) {
+                        throw new RuntimeException("Could not replace existing file at " + outputPath);
+                    }
+                    if (!temp.renameTo(finalFile)) {
+                        throw new RuntimeException("Could not move the finished highlights video into place");
+                    }
+
+                    JSObject result = new JSObject();
+                    result.put("outputPath", finalFile.getAbsolutePath());
+                    result.put("uri", Uri.fromFile(finalFile).toString());
+                    resolveOnMain(call, result);
+
+                } catch (Throwable t) {
+                    if (temp.exists()) temp.delete();   // never leave a half-written video behind
+                    final String msg = t.getMessage() != null ? t.getMessage() : t.toString();
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            call.reject("Highlights rendering failed: " + msg);
+                        }
+                    });
+                }
+            }
+        }, "cc-highlights-compositor").start();
+    }
+
     private void resolveOnMain(final PluginCall call, final JSObject result) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override

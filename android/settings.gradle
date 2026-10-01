@@ -1,3 +1,19 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+plugins {
+    // Lets Gradle auto-download a matching JDK when a module's toolchain
+    // requirement (e.g. capacitor-filesystem needing Java 21) isn't already
+    // installed on this machine, instead of failing with "No locally
+    // installed toolchains match" / "toolchain download repositories have
+    // not been configured".
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+}
+
 include ':app'
 include ':capacitor-cordova-android-plugins'
 project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins/')
